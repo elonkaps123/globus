@@ -100,27 +100,58 @@ faqItems.forEach((item) => {
 });
 
 if (form) {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
+
         event.preventDefault();
 
         const submitButton = form.querySelector("button[type='submit']");
 
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.textContent = "Заявка отправлена";
-        }
+        submitButton.disabled = true;
+        submitButton.textContent = "Отправка...";
 
-        if (formSuccess) {
-            formSuccess.textContent = "Спасибо! Мы свяжемся с вами, чтобы согласовать время консультации.";
-        }
+        const data = {
+            name: form.name.value,
+            phone: form.phone.value,
+            grade: form.grade.value,
+            message: form.message.value
+        };
 
-        form.reset();
+        try {
 
-        window.setTimeout(() => {
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = "Записаться на консультацию";
+            const response = await fetch("https://eoy0tdi1qpk9zzd.m.pipedream.net", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(data)
+
+            });
+
+            if (!response.ok) {
+                throw new Error();
             }
-        }, 3200);
+
+            form.reset();
+
+            formSuccess.textContent =
+                "Спасибо! Мы свяжемся с вами в течение рабочего дня.";
+
+            submitButton.textContent = "Отправлено";
+
+        } catch (error) {
+
+            formSuccess.textContent =
+                "Ошибка отправки. Попробуйте позже.";
+
+            submitButton.textContent =
+                "Попробовать снова";
+
+        }
+
+        submitButton.disabled = false;
+
     });
 }
